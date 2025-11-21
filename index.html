@@ -903,7 +903,7 @@
             }
             
             const encodedMessage = encodeURIComponent(message);
-            window.open(`https://wa.me/6287827872117?text=${encodedMessage}`, '_blank');
+            window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
         }
 
         function sendToTelegram() {
@@ -917,7 +917,7 @@
             }
             
             const encodedMessage = encodeURIComponent(message);
-            window.open(`https://t.me/angkasanyabobo?url=&text=${encodedMessage}`, '_blank');
+            window.open(`https://t.me/share/url?url=&text=${encodedMessage}`, '_blank');
         }
 
         function sendDirectToTelegram() {
@@ -943,6 +943,90 @@
                 closeForm();
             }
         });
+
+const OWNER_WA = "6287827872117"; // Ganti sesuai kebutuhan
+const OWNER_TELE_USERNAME = "angkasanyabobo"; // tanpa @
+
+function getFormData() {
+    const formData = new FormData(document.getElementById('mainForm'));
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+    return data;
+}
+
+function sendToWhatsApp() {
+    const data = getFormData();
+    if (!data.nama || !data.nomor_owner) {
+        alert("⚠️ Harap lengkapi semua field yang wajib diisi!");
+        return;
+    }
+
+    let message = `🔥 *ORDER MASUK*\n--------------------\n`;
+    message += `📌 Layanan: ${currentService.type} - ${currentService.duration || currentService.item}\n`;
+    message += `💰 Harga: ${currentService.price}\n`;
+    if (currentPayment) {
+        message += `💳 Pembayaran: ${currentPayment.toUpperCase()}\n`;
+    }
+    message += `\n`;
+    for (let [key, value] of Object.entries(data)) {
+        // Bersihkan nama field agar lebih user-friendly
+        const label = key
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, l => l.toUpperCase());
+        message += `• ${label}: ${value}\n`;
+    }
+
+    const url = `https://wa.me/${OWNER_WA}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+    closeForm(); // opsional: tutup form setelah kirim
+}
+
+function sendToTelegram() {
+    const data = getFormData();
+    if (!data.nama || !data.nomor_owner) {
+        alert("⚠️ Harap lengkapi semua field yang wajib diisi!");
+        return;
+    }
+
+    let message = `🔥 ORDER MASUK\n--------------------\n`;
+    message += `📌 Layanan: ${currentService.type} - ${currentService.duration || currentService.item}\n`;
+    message += `💰 Harga: ${currentService.price}\n`;
+    if (currentPayment) {
+        message += `💳 Pembayaran: ${currentPayment.toUpperCase()}\n`;
+    }
+    message += `\n`;
+    for (let [key, value] of Object.entries(data)) {
+        const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        message += `• ${label}: ${value}\n`;
+    }
+
+    const url = `https://t.me/${OWNER_TELE_USERNAME}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+    closeForm();
+}
+
+function sendDirectToTelegram() {
+    const data = getFormData();
+    if (!data.username_tele || !data.id_tele) {
+        alert("⚠️ Harap isi Username & ID Telegram!");
+        return;
+    }
+
+    let message = `🔥 ORDER MASUK (Akses/Direct)\n--------------------\n`;
+    message += `📌 Layanan: ${currentService.type} - ${currentService.item}\n`;
+    message += `💰 Harga: ${currentService.price}\n\n`;
+    for (let [key, value] of Object.entries(data)) {
+        const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        message += `• ${label}: ${value}\n`;
+    }
+
+    const url = `https://t.me/${OWNER_TELE_USERNAME}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+    closeForm();
+}
+
     </script>
 </body>
 </html>
