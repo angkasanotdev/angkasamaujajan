@@ -721,312 +721,319 @@
     <div class="floating-elements" id="floatingElements"></div>
 
     <script>
-        // Show main content after loading
+    // === CONFIG OWNER ===
+    const OWNER_WA = "6287827872117"; // Ganti dengan nomor owner (format internasional, tanpa +)
+    const OWNER_TELE = "angkasanyabobo"; // Ganti dengan username Telegram owner (tanpa @)
+
+    // Show main content after loading
+    setTimeout(() => {
+        document.getElementById('loadingScreen').style.opacity = '0';
         setTimeout(() => {
-            document.getElementById('loadingScreen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('mainContent').classList.add('show');
-                createFloatingElements();
-            }, 500);
-        }, 3000);
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('mainContent').classList.add('show');
+            createFloatingElements();
+        }, 500);
+    }, 3000);
 
-        function createFloatingElements() {
-            const container = document.getElementById('floatingElements');
-            for (let i = 0; i < 20; i++) {
-                const element = document.createElement('div');
-                element.className = 'floating-element';
-                element.innerHTML = ['🌊', '🐠', '🐙', '🦀', '🐚', '🐬', '🐳', '🦈'][Math.floor(Math.random() * 8)];
-                element.style.left = Math.random() * 100 + '%';
-                element.style.top = Math.random() * 100 + '%';
-                element.style.fontSize = (Math.random() * 2 + 1) + 'rem';
-                element.style.animationDelay = Math.random() * 6 + 's';
-                container.appendChild(element);
-            }
+    function createFloatingElements() {
+        const container = document.getElementById('floatingElements');
+        for (let i = 0; i < 20; i++) {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.innerHTML = ['🌊', '🐠', '🐙', '🦀', '🐚', '🐬', '🐳', '🦈'][Math.floor(Math.random() * 8)];
+            element.style.left = Math.random() * 100 + '%';
+            element.style.top = Math.random() * 100 + '%';
+            element.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+            element.style.animationDelay = Math.random() * 6 + 's';
+            container.appendChild(element);
         }
+    }
 
-        function toggleMenu(menuId) {
-            const subitems = document.getElementById(menuId + '-subitems');
-            const allSubitems = document.querySelectorAll('.menu-subitems');
-            
-            allSubitems.forEach(item => {
-                if (item !== subitems) {
-                    item.classList.remove('show');
-                }
-            });
-            
-            subitems.classList.toggle('show');
-        }
-
-        function openForm(serviceType, duration, price) {
-            const modal = document.getElementById('formModal');
-            const title = document.getElementById('formTitle');
-            const fields = document.getElementById('formFields');
-            const paymentSection = document.getElementById('paymentSection');
-            const sendOptions = document.getElementById('sendOptions');
-            const directSend = document.getElementById('directSend');
-            
-            title.textContent = `Formulir ${serviceType.replace('-', ' ').toUpperCase()} - ${duration} (${price})`;
-            
-            let formHTML = '';
-            currentService = { type: serviceType, duration: duration, price: price };
-            
-            switch(serviceType) {
-                case 'jadibot':
-                    formHTML = `
-                        <div class="form-group">
-                            <label class="form-label">Nama</label>
-                            <input type="text" class="form-input" name="nama" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Nama Bot</label>
-                            <input type="text" class="form-input" name="nama_bot" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Nomor Bot</label>
-                            <input type="text" class="form-input" name="nomor_bot" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Nomor Owner</label>
-                            <input type="text" class="form-input" name="nomor_owner" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Foto Bot</label>
-                            <div class="file-upload">
-                                <input type="file" id="foto_bot" name="foto_bot" accept="image/*" required>
-                                <button type="button" class="file-upload-button">Pilih Foto</button>
-                            </div>
-                            <span class="file-name" id="foto_name">Belum dipilih</span>
-                        </div>
-                    `;
-                    break;
-                    
-                case 'sewabot-reguler':
-                case 'sewabot-premium':
-                case 'sewabot-vvip':
-                    formHTML = `
-                        <div class="form-group">
-                            <label class="form-label">Nama</label>
-                            <input type="text" class="form-input" name="nama" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Nomor Penyewa</label>
-                            <input type="text" class="form-input" name="nomor_penyewa" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Link Group</label>
-                            <input type="url" class="form-input" name="link_group" required>
-                        </div>
-                    `;
-                    break;
-                    
-                case 'akses-prem-cekbio':
-                case 'akses-premium-fix-merah':
-                case 'akses-admin-cekbio':
-                    formHTML = `
-                        <div class="form-group">
-                            <label class="form-label">Username Telegram</label>
-                            <input type="text" class="form-input" name="username_tele" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">ID Telegram</label>
-                            <input type="text" class="form-input" name="id_tele" required>
-                        </div>
-                    `;
-                    break;
-            }
-            
-            fields.innerHTML = formHTML;
-            paymentSection.style.display = 'block';
-            sendOptions.style.display = serviceType === 'jadibot' || serviceType.includes('sewabot') ? 'block' : 'none';
-            directSend.style.display = serviceType.includes('akses') || serviceType.includes('harga') ? 'block' : 'none';
-            
-            // Add event listener for file upload
-            const fileInput = document.getElementById('foto_bot');
-            if (fileInput) {
-                fileInput.addEventListener('change', function(e) {
-                    document.getElementById('foto_name').textContent = e.target.files[0]?.name || 'Belum dipilih';
-                });
-            }
-            
-            modal.classList.add('show');
-        }
-
-        function openDirectForm(serviceType, item, price) {
-            const modal = document.getElementById('formModal');
-            const title = document.getElementById('formTitle');
-            const fields = document.getElementById('formFields');
-            const paymentSection = document.getElementById('paymentSection');
-            const sendOptions = document.getElementById('sendOptions');
-            const directSend = document.getElementById('directSend');
-            
-            title.textContent = `Formulir ${serviceType.replace('-', ' ').toUpperCase()} - ${item} (${price})`;
-            
-            let formHTML = `
-                <div class="form-group">
-                    <label class="form-label">Username Telegram</label>
-                    <input type="text" class="form-input" name="username_tele" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">ID Telegram</label>
-                    <input type="text" class="form-input" name="id_tele" required>
-                </div>
-            `;
-            
-            fields.innerHTML = formHTML;
-            paymentSection.style.display = 'none';
-            sendOptions.style.display = 'none';
-            directSend.style.display = 'block';
-            
-            currentService = { type: serviceType, item: item, price: price };
-            modal.classList.add('show');
-        }
-
-        let currentPayment = '';
-        let currentService = {};
-
-        function selectPayment(method) {
-            const options = document.querySelectorAll('.payment-option');
-            options.forEach(opt => opt.classList.remove('selected'));
-            event.target.closest('.payment-option').classList.add('selected');
-            currentPayment = method;
-        }
-
-        function sendToWhatsApp() {
-            const formData = new FormData(document.getElementById('mainForm'));
-            let message = `Pesanan Baru:\n`;
-            message += `Service: ${currentService.type} - ${currentService.duration} - ${currentService.price}\n`;
-            message += `Pembayaran: ${currentPayment}\n\n`;
-            
-            for (let [key, value] of formData.entries()) {
-                message += `${key}: ${value}\n`;
-            }
-            
-            const encodedMessage = encodeURIComponent(message);
-            window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
-        }
-
-        function sendToTelegram() {
-            const formData = new FormData(document.getElementById('mainForm'));
-            let message = `Pesanan Baru:\n`;
-            message += `Service: ${currentService.type} - ${currentService.duration} - ${currentService.price}\n`;
-            message += `Pembayaran: ${currentPayment}\n\n`;
-            
-            for (let [key, value] of formData.entries()) {
-                message += `${key}: ${value}\n`;
-            }
-            
-            const encodedMessage = encodeURIComponent(message);
-            window.open(`https://t.me/share/url?url=&text=${encodedMessage}`, '_blank');
-        }
-
-        function sendDirectToTelegram() {
-            const formData = new FormData(document.getElementById('mainForm'));
-            let message = `Pesanan Baru:\n`;
-            message += `Service: ${currentService.type} - ${currentService.item} - ${currentService.price}\n\n`;
-            
-            for (let [key, value] of formData.entries()) {
-                message += `${key}: ${value}\n`;
-            }
-            
-            const encodedMessage = encodeURIComponent(message);
-            window.open(`https://t.me/share/url?url=&text=${encodedMessage}`, '_blank');
-        }
-
-        function closeForm() {
-            document.getElementById('formModal').classList.remove('show');
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('formModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeForm();
+    function toggleMenu(menuId) {
+        const subitems = document.getElementById(menuId + '-subitems');
+        const allSubitems = document.querySelectorAll('.menu-subitems');
+        
+        allSubitems.forEach(item => {
+            if (item !== subitems) {
+                item.classList.remove('show');
             }
         });
-
-const OWNER_WA = "6287827872117"; // Ganti sesuai kebutuhan
-const OWNER_TELE_USERNAME = "angkasanyabobo"; // tanpa @
-
-function getFormData() {
-    const formData = new FormData(document.getElementById('mainForm'));
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-        data[key] = value;
-    }
-    return data;
-}
-
-function sendToWhatsApp() {
-    const data = getFormData();
-    if (!data.nama || !data.nomor_owner) {
-        alert("⚠️ Harap lengkapi semua field yang wajib diisi!");
-        return;
+        
+        subitems.classList.toggle('show');
     }
 
-    let message = `🔥 *ORDER MASUK*\n--------------------\n`;
-    message += `📌 Layanan: ${currentService.type} - ${currentService.duration || currentService.item}\n`;
-    message += `💰 Harga: ${currentService.price}\n`;
-    if (currentPayment) {
-        message += `💳 Pembayaran: ${currentPayment.toUpperCase()}\n`;
+    function openForm(serviceType, duration, price) {
+        const modal = document.getElementById('formModal');
+        const title = document.getElementById('formTitle');
+        const fields = document.getElementById('formFields');
+        const paymentSection = document.getElementById('paymentSection');
+        const sendOptions = document.getElementById('sendOptions');
+        const directSend = document.getElementById('directSend');
+        
+        title.textContent = `Formulir ${serviceType.replace('-', ' ').toUpperCase()} - ${duration} (${price})`;
+        
+        let formHTML = '';
+        currentService = { type: serviceType, duration: duration, price: price };
+        
+        switch(serviceType) {
+            case 'jadibot':
+                formHTML = `
+                    <div class="form-group">
+                        <label class="form-label">Nama</label>
+                        <input type="text" class="form-input" name="nama" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Bot</label>
+                        <input type="text" class="form-input" name="nama_bot" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nomor Bot</label>
+                        <input type="text" class="form-input" name="nomor_bot" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nomor Owner</label>
+                        <input type="text" class="form-input" name="nomor_owner" id="nomor_owner" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Foto Bot <small>(Kirim manual via WA setelah order)</small></label>
+                        <div class="file-upload">
+                            <input type="file" id="foto_bot" name="foto_bot" accept="image/*">
+                            <button type="button" class="file-upload-button">Pilih Foto</button>
+                        </div>
+                        <span class="file-name" id="foto_name">Opsional</span>
+                    </div>
+                `;
+                break;
+                
+            case 'sewabot-reguler':
+            case 'sewabot-premium':
+            case 'sewabot-vvip':
+                formHTML = `
+                    <div class="form-group">
+                        <label class="form-label">Nama</label>
+                        <input type="text" class="form-input" name="nama" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nomor Penyewa</label>
+                        <input type="text" class="form-input" name="nomor_penyewa" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Link Group</label>
+                        <input type="url" class="form-input" name="link_group" required placeholder="https://chat.whatsapp.com/...">
+                    </div>
+                `;
+                break;
+                
+            case 'akses-prem-cekbio':
+            case 'akses-premium-fix-merah':
+            case 'akses-admin-cekbio':
+                formHTML = `
+                    <div class="form-group">
+                        <label class="form-label">Username Telegram</label>
+                        <input type="text" class="form-input" name="username_tele" required placeholder="@username">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ID Telegram</label>
+                        <input type="text" class="form-input" name="id_tele" required>
+                    </div>
+                `;
+                break;
+        }
+        
+        fields.innerHTML = formHTML;
+        paymentSection.style.display = 'block';
+        sendOptions.style.display = ['jadibot', 'sewabot-reguler', 'sewabot-premium', 'sewabot-vvip'].includes(serviceType) ? 'block' : 'none';
+        directSend.style.display = serviceType.includes('akses') || serviceType.includes('harga') ? 'block' : 'none';
+        
+        // Add event listener for file upload
+        const fileInput = document.getElementById('foto_bot');
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                document.getElementById('foto_name').textContent = e.target.files[0]?.name || 'Opsional';
+            });
+        }
+        
+        modal.classList.add('show');
     }
-    message += `\n`;
-    for (let [key, value] of Object.entries(data)) {
-        // Bersihkan nama field agar lebih user-friendly
-        const label = key
-            .replace(/_/g, ' ')
-            .replace(/\b\w/g, l => l.toUpperCase());
-        message += `• ${label}: ${value}\n`;
+
+    function openDirectForm(serviceType, item, price) {
+        const modal = document.getElementById('formModal');
+        const title = document.getElementById('formTitle');
+        const fields = document.getElementById('formFields');
+        const paymentSection = document.getElementById('paymentSection');
+        const sendOptions = document.getElementById('sendOptions');
+        const directSend = document.getElementById('directSend');
+        
+        title.textContent = `Formulir ${serviceType.replace('-', ' ').toUpperCase()} - ${item} (${price})`;
+        
+        let formHTML = `
+            <div class="form-group">
+                <label class="form-label">Username Telegram</label>
+                <input type="text" class="form-input" name="username_tele" required placeholder="@username">
+            </div>
+            <div class="form-group">
+                <label class="form-label">ID Telegram</label>
+                <input type="text" class="form-input" name="id_tele" required>
+            </div>
+        `;
+        
+        fields.innerHTML = formHTML;
+        paymentSection.style.display = 'none';
+        sendOptions.style.display = 'none';
+        directSend.style.display = 'block';
+        
+        currentService = { type: serviceType, item: item, price: price };
+        modal.classList.add('show');
     }
 
-    const url = `https://wa.me/${OWNER_WA}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
-    closeForm(); // opsional: tutup form setelah kirim
-}
+    let currentPayment = '';
+    let currentService = {};
 
-function sendToTelegram() {
-    const data = getFormData();
-    if (!data.nama || !data.nomor_owner) {
-        alert("⚠️ Harap lengkapi semua field yang wajib diisi!");
-        return;
+    function selectPayment(method) {
+        const options = document.querySelectorAll('.payment-option');
+        options.forEach(opt => opt.classList.remove('selected'));
+        event.target.closest('.payment-option').classList.add('selected');
+        currentPayment = method;
     }
 
-    let message = `🔥 ORDER MASUK\n--------------------\n`;
-    message += `📌 Layanan: ${currentService.type} - ${currentService.duration || currentService.item}\n`;
-    message += `💰 Harga: ${currentService.price}\n`;
-    if (currentPayment) {
-        message += `💳 Pembayaran: ${currentPayment.toUpperCase()}\n`;
-    }
-    message += `\n`;
-    for (let [key, value] of Object.entries(data)) {
-        const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        message += `• ${label}: ${value}\n`;
+    function getFormData() {
+        const form = document.getElementById('mainForm');
+        const data = {};
+        const formData = new FormData(form);
+        for (let [key, value] of formData.entries()) {
+            data[key] = value.trim();
+        }
+        return data;
     }
 
-    const url = `https://t.me/${OWNER_TELE_USERNAME}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
-    closeForm();
-}
+    function sendToWhatsApp() {
+        const data = getFormData();
+        
+        // Validasi wajib
+        const requiredFields = ['nama'];
+        if (currentService.type === 'jadibot') {
+            requiredFields.push('nomor_owner');
+        } else if (currentService.type.includes('sewabot')) {
+            requiredFields.push('nomor_penyewa');
+        }
 
-function sendDirectToTelegram() {
-    const data = getFormData();
-    if (!data.username_tele || !data.id_tele) {
-        alert("⚠️ Harap isi Username & ID Telegram!");
-        return;
+        for (let field of requiredFields) {
+            if (!data[field]) {
+                alert(`⚠️ Kolom "${field.replace(/_/g, ' ')}" wajib diisi!`);
+                return;
+            }
+        }
+
+        let message = `🔥 *ORDER BARU MASUK*\n────────────────────\n`;
+        message += `📦 Layanan: *${currentService.type.replace(/-/g, ' ').toUpperCase()}*\n`;
+        message += `📅 Durasi: ${currentService.duration || currentService.item}\n`;
+        message += `💰 Harga: ${currentService.price}\n`;
+        if (currentPayment) {
+            message += `💳 Bayar via: ${currentPayment.toUpperCase()}\n`;
+        }
+        message += `\n📋 Detail:\n`;
+
+        for (let [key, value] of Object.entries(data)) {
+            if (value && key !== 'foto_bot') { // skip file
+                const label = key
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, l => l.toUpperCase());
+                message += `• ${label}: ${value}\n`;
+            }
+        }
+
+        // Tambahkan keterangan file
+        if (data.foto_bot) {
+            message += `\n📸 *Catatan: Foto Bot dikirim terpisah via WA*`;
+        }
+
+        const url = `https://wa.me/${OWNER_WA}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+        closeForm();
+        alert("✅ Pesanan berhasil dikirim ke owner via WhatsApp!\nSilakan cek chat dengan owner untuk konfirmasi.");
     }
 
-    let message = `🔥 ORDER MASUK (Akses/Direct)\n--------------------\n`;
-    message += `📌 Layanan: ${currentService.type} - ${currentService.item}\n`;
-    message += `💰 Harga: ${currentService.price}\n\n`;
-    for (let [key, value] of Object.entries(data)) {
-        const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        message += `• ${label}: ${value}\n`;
+    function sendToTelegram() {
+        const data = getFormData();
+
+        const requiredFields = ['nama'];
+        if (currentService.type === 'jadibot') {
+            requiredFields.push('nomor_owner');
+        } else if (currentService.type.includes('sewabot')) {
+            requiredFields.push('nomor_penyewa');
+        }
+
+        for (let field of requiredFields) {
+            if (!data[field]) {
+                alert(`⚠️ Kolom "${field.replace(/_/g, ' ')}" wajib diisi!`);
+                return;
+            }
+        }
+
+        let message = `🔥 ORDER BARU MASUK\n────────────────────\n`;
+        message += `📦 Layanan: ${currentService.type.replace(/-/g, ' ').toUpperCase()}\n`;
+        message += `📅 Durasi: ${currentService.duration || currentService.item}\n`;
+        message += `💰 Harga: ${currentService.price}\n`;
+        if (currentPayment) {
+            message += `💳 Bayar via: ${currentPayment.toUpperCase()}\n`;
+        }
+        message += `\n📋 Detail:\n`;
+
+        for (let [key, value] of Object.entries(data)) {
+            if (value && key !== 'foto_bot') {
+                const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                message += `• ${label}: ${value}\n`;
+            }
+        }
+
+        if (data.foto_bot) {
+            message += `\n📸 Catatan: Foto Bot dikirim terpisah via WA`;
+        }
+
+        // Kirim ke owner Telegram
+        const url = `https://t.me/${OWNER_TELE}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+        closeForm();
+        alert("✅ Pesanan berhasil dikirim ke owner via Telegram!\nSilakan cek chat dengan owner untuk konfirmasi.");
     }
 
-    const url = `https://t.me/${OWNER_TELE_USERNAME}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
-    closeForm();
-}
+    function sendDirectToTelegram() {
+        const data = getFormData();
 
-    </script>
+        if (!data.username_tele || !data.id_tele) {
+            alert("⚠️ Username & ID Telegram wajib diisi!");
+            return;
+        }
+
+        let message = `🔥 ORDER BARU (AKSES/DIRECT)\n────────────────────\n`;
+        message += `📦 Layanan: ${currentService.type.replace(/-/g, ' ').toUpperCase()}\n`;
+        message += `Item: ${currentService.item}\n`;
+        message += `💰 Harga: ${currentService.price}\n\n`;
+        message += `📋 Detail:\n`;
+
+        for (let [key, value] of Object.entries(data)) {
+            if (value) {
+                const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                message += `• ${label}: ${value}\n`;
+            }
+        }
+
+        const url = `https://t.me/${OWNER_TELE}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+        closeForm();
+        alert("✅ Pesanan berhasil dikirim ke owner via Telegram!");
+    }
+
+    function closeForm() {
+        document.getElementById('formModal').classList.remove('show');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('formModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeForm();
+        }
+    });
+</script>
 </body>
 </html>
