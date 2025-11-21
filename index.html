@@ -722,8 +722,8 @@
 
     <script>
     // === CONFIG OWNER ===
-    const OWNER_WA = "6287827872117"; // Ganti dengan nomor owner (format internasional, tanpa +)
-    const OWNER_TELE = "angkasanyabobo"; // Ganti dengan username Telegram owner (tanpa @)
+    const OWNER_WA = "6287827872117";
+    const OWNER_TELE = "angkasanyabobo"; // tanpa @
 
     // Show main content after loading
     setTimeout(() => {
@@ -773,14 +773,14 @@
         title.textContent = `Formulir ${serviceType.replace('-', ' ').toUpperCase()} - ${duration} (${price})`;
         
         let formHTML = '';
-        currentService = { type: serviceType, duration: duration, price: price };
+        currentService = { type: serviceType, duration: duration, price: price, mode: 'form' };
         
         switch(serviceType) {
             case 'jadibot':
                 formHTML = `
                     <div class="form-group">
                         <label class="form-label">Nama</label>
-                        <input type="text" class="form-input" name="nama" required>
+                        <input type="text" class="form-input" name="nama" id="nama" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nama Bot</label>
@@ -811,11 +811,11 @@
                 formHTML = `
                     <div class="form-group">
                         <label class="form-label">Nama</label>
-                        <input type="text" class="form-input" name="nama" required>
+                        <input type="text" class="form-input" name="nama" id="nama" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nomor Penyewa</label>
-                        <input type="text" class="form-input" name="nomor_penyewa" required>
+                        <input type="text" class="form-input" name="nomor_penyewa" id="nomor_penyewa" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Link Group</label>
@@ -830,11 +830,11 @@
                 formHTML = `
                     <div class="form-group">
                         <label class="form-label">Username Telegram</label>
-                        <input type="text" class="form-input" name="username_tele" required placeholder="@username">
+                        <input type="text" class="form-input" name="username_tele" id="username_tele" required placeholder="@username">
                     </div>
                     <div class="form-group">
                         <label class="form-label">ID Telegram</label>
-                        <input type="text" class="form-input" name="id_tele" required>
+                        <input type="text" class="form-input" name="id_tele" id="id_tele" required>
                     </div>
                 `;
                 break;
@@ -842,10 +842,10 @@
         
         fields.innerHTML = formHTML;
         paymentSection.style.display = 'block';
-        sendOptions.style.display = ['jadibot', 'sewabot-reguler', 'sewabot-premium', 'sewabot-vvip'].includes(serviceType) ? 'block' : 'none';
-        directSend.style.display = serviceType.includes('akses') || serviceType.includes('harga') ? 'block' : 'none';
+        sendOptions.style.display = (serviceType === 'jadibot' || serviceType.includes('sewabot')) ? 'block' : 'none';
+        directSend.style.display = 'none';
         
-        // Add event listener for file upload
+        // File upload listener
         const fileInput = document.getElementById('foto_bot');
         if (fileInput) {
             fileInput.addEventListener('change', function(e) {
@@ -869,11 +869,11 @@
         let formHTML = `
             <div class="form-group">
                 <label class="form-label">Username Telegram</label>
-                <input type="text" class="form-input" name="username_tele" required placeholder="@username">
+                <input type="text" class="form-input" name="username_tele" id="username_tele" required placeholder="@username">
             </div>
             <div class="form-group">
                 <label class="form-label">ID Telegram</label>
-                <input type="text" class="form-input" name="id_tele" required>
+                <input type="text" class="form-input" name="id_tele" id="id_tele" required>
             </div>
         `;
         
@@ -882,7 +882,7 @@
         sendOptions.style.display = 'none';
         directSend.style.display = 'block';
         
-        currentService = { type: serviceType, item: item, price: price };
+        currentService = { type: serviceType, item: item, price: price, mode: 'direct' };
         modal.classList.add('show');
     }
 
@@ -934,7 +934,7 @@
         message += `\n📋 Detail:\n`;
 
         for (let [key, value] of Object.entries(data)) {
-            if (value && key !== 'foto_bot') { // skip file
+            if (value && key !== 'foto_bot') {
                 const label = key
                     .replace(/_/g, ' ')
                     .replace(/\b\w/g, l => l.toUpperCase());
@@ -942,7 +942,6 @@
             }
         }
 
-        // Tambahkan keterangan file
         if (data.foto_bot) {
             message += `\n📸 *Catatan: Foto Bot dikirim terpisah via WA*`;
         }
@@ -950,7 +949,7 @@
         const url = `https://wa.me/${OWNER_WA}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
         closeForm();
-        alert("✅ Pesanan berhasil dikirim ke owner via WhatsApp!\nSilakan cek chat dengan owner untuk konfirmasi.");
+        alert("✅ Pesanan berhasil dikirim ke owner via WhatsApp!");
     }
 
     function sendToTelegram() {
@@ -990,11 +989,10 @@
             message += `\n📸 Catatan: Foto Bot dikirim terpisah via WA`;
         }
 
-        // Kirim ke owner Telegram
         const url = `https://t.me/${OWNER_TELE}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
         closeForm();
-        alert("✅ Pesanan berhasil dikirim ke owner via Telegram!\nSilakan cek chat dengan owner untuk konfirmasi.");
+        alert("✅ Pesanan berhasil dikirim ke owner via Telegram!");
     }
 
     function sendDirectToTelegram() {
