@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angkasa Services - WhatsApp Bot & Premium Access</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #00c6ff;
+            --secondary-blue: #0072ff;
+            --dark-blue: #001f3f;
+            --neon-blue: #00e5ff;
+            --ocean-blue: #0077be;
+            --deep-blue: #003366;
+            --light-blue: #4a90e2;
+            --accent: #00ffcc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark-blue), var(--deep-blue), var(--ocean-blue));
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--dark-blue), var(--deep-blue));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .loading-content {
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        .loading-icon {
+            font-size: 4rem;
+            color: var(--neon-blue);
+            margin-bottom: 20px;
+            animation: rotate 3s infinite linear;
+        }
+
+        .loading-text {
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            margin-bottom: 20px;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-blue), var(--neon-blue));
+            width: 0%;
+            animation: loading 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .main-content.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: rgba(0, 31, 63, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--neon-blue);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            color: var(--neon-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(to right, var(--primary-blue), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--light-blue);
+            font-size: 1.1rem;
+        }
+
+        /* Menu */
+        .menu-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .menu-item {
+            background: rgba(0, 31, 63, 0.9);
+            border: 2px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.3);
+            border-color: var(--accent);
+        }
+
+        .menu-icon {
+            font-size: 2rem;
+            color: var(--neon-blue);
+            margin-bottom: 1rem;
+        }
+
+        .menu-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
+        }
+
+        .menu-subitems {
+            display: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+        }
+
+        .menu-subitems.show {
+            display: block;
+            max-height: 1000px;
+            padding: 1rem 0;
+        }
+
+        .subitem {
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            background: rgba(0, 51, 102, 0.6);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid var(--neon-blue);
+            position: relative;
+        }
+
+        .subitem:hover {
+            background: rgba(0, 114, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .price-tag {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--neon-blue);
+            color: var(--dark-blue);
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Form Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 31, 63, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .form-container {
+            background: linear-gradient(135deg, var(--dark-blue), var(--deep-blue));
+            border: 2px solid var(--neon-blue);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-title {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--light-blue);
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--ocean-blue);
+            border-radius: 8px;
+            background: rgba(0, 51, 102, 0.5);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        }
+
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-upload-button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: var(--ocean-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .file-upload-button:hover {
+            background: var(--neon-blue);
+        }
+
+        .file-name {
+            margin-left: 1rem;
+            color: var(--light-blue);
+        }
+
+        /* Payment Options */
+        .payment-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .payment-option {
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+            padding: 1rem;
+            border: 2px solid var(--ocean-blue);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-option:hover, .payment-option.selected {
+            border-color: var(--neon-blue);
+            background: rgba(0, 114, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .payment-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--neon-blue);
+        }
+
+        .payment-name {
+            font-size: 0.9rem;
+            color: var(--light-blue);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem 0.25rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-blue), var(--neon-blue));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--ocean-blue);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 229, 255, 0.4);
+        }
+
+        .btn-send {
+            background: linear-gradient(45deg, #25d366, #128c7e);
+            color: white;
+        }
+
+        .btn-tele {
+            background: linear-gradient(45deg, #0088cc, #0055cc);
+            color: white;
+        }
+
+        /* Decorative Elements */
+        .ocean-wave {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="%2300c6ff"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="%230072ff"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%23001f3f"/></svg>');
+            background-size: cover;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            color: var(--neon-blue);
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .form-container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            
+            .payment-options {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 0.25rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-icon">
+                <i class="fas fa-water"></i>
+            </div>
+            <div class="loading-text">Memuat Layanan Angkasa...</div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-water"></i>
+            </div>
+            <h1 class="title">Angkasa Services</h1>
+            <p class="subtitle">WhatsApp Bot & Premium Access Solutions</p>
+        </div>
+
+        <div class="menu-container">
+            <div class="menu-grid">
+                <!-- Jadibot -->
+                <div class="menu-item" onclick="toggleMenu('jadibot')">
+                    <div class="menu-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="menu-title">Jadibot</h3>
+                    <div class="menu-subitems" id="jadibot-subitems">
+                        <div class="subitem" onclick="openForm('jadibot', 'Harian', 'Rp 15,000')">
+                            Harian <span class="price-tag">Rp 15,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('jadibot', 'Mingguan', 'Rp 75,000')">
+                            Mingguan <span class="price-tag">Rp 75,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('jadibot', 'Bulanan', 'Rp 250,000')">
+                            Bulanan <span class="price-tag">Rp 250,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('jadibot', 'Permanen', 'Rp 500,000')">
+                            Permanen <span class="price-tag">Rp 500,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sewabot Reguler -->
+                <div class="menu-item" onclick="toggleMenu('sewabot-reguler')">
+                    <div class="menu-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h3 class="menu-title">Sewabot Reguler</h3>
+                    <div class="menu-subitems" id="sewabot-reguler-subitems">
+                        <div class="subitem" onclick="openForm('sewabot-reguler', 'Mingguan', 'Rp 50,000')">
+                            Mingguan <span class="price-tag">Rp 50,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('sewabot-reguler', 'Bulanan', 'Rp 150,000')">
+                            Bulanan <span class="price-tag">Rp 150,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('sewabot-reguler', 'Permanen', 'Rp 300,000')">
+                            Permanen <span class="price-tag">Rp 300,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sewabot Premium -->
+                <div class="menu-item" onclick="toggleMenu('sewabot-premium')">
+                    <div class="menu-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h3 class="menu-title">Sewabot Premium</h3>
+                    <div class="menu-subitems" id="sewabot-premium-subitems">
+                        <div class="subitem" onclick="openForm('sewabot-premium', 'Mingguan', 'Rp 75,000')">
+                            Mingguan <span class="price-tag">Rp 75,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('sewabot-premium', 'Bulanan', 'Rp 225,000')">
+                            Bulanan <span class="price-tag">Rp 225,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('sewabot-premium', 'Permanen', 'Rp 450,000')">
+                            Permanen <span class="price-tag">Rp 450,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sewabot VVIP -->
+                <div class="menu-item" onclick="toggleMenu('sewabot-vvip')">
+                    <div class="menu-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3 class="menu-title">Sewabot VVIP</h3>
+                    <div class="menu-subitems" id="sewabot-vvip-subitems">
+                        <div class="subitem" onclick="openForm('sewabot-vvip', 'Mingguan', 'Rp 100,000')">
+                            Mingguan <span class="price-tag">Rp 100,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('sewabot-vvip', 'Bulanan', 'Rp 300,000')">
+                            Bulanan <span class="price-tag">Rp 300,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('sewabot-vvip', 'Permanen', 'Rp 600,000')">
+                            Permanen <span class="price-tag">Rp 600,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Akses Prem Cekbio -->
+                <div class="menu-item" onclick="toggleMenu('akses-prem-cekbio')">
+                    <div class="menu-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="menu-title">Akses Prem Cekbio via Tele</h3>
+                    <div class="menu-subitems" id="akses-prem-cekbio-subitems">
+                        <div class="subitem" onclick="openForm('akses-prem-cekbio', 'Harian', 'Rp 10,000')">
+                            Harian <span class="price-tag">Rp 10,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('akses-prem-cekbio', 'Mingguan', 'Rp 50,000')">
+                            Mingguan <span class="price-tag">Rp 50,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('akses-prem-cekbio', 'Bulanan', 'Rp 150,000')">
+                            Bulanan <span class="price-tag">Rp 150,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('akses-prem-cekbio', 'Permanen', 'Rp 300,000')">
+                            Permanen <span class="price-tag">Rp 300,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Akses Premium Fix Merah -->
+                <div class="menu-item" onclick="toggleMenu('akses-premium-fix-merah')">
+                    <div class="menu-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h3 class="menu-title">Akses Premium Fix Merah via Tele</h3>
+                    <div class="menu-subitems" id="akses-premium-fix-merah-subitems">
+                        <div class="subitem" onclick="openForm('akses-premium-fix-merah', 'Harian', 'Rp 15,000')">
+                            Harian <span class="price-tag">Rp 15,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('akses-premium-fix-merah', 'Mingguan', 'Rp 75,000')">
+                            Mingguan <span class="price-tag">Rp 75,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('akses-premium-fix-merah', 'Bulanan', 'Rp 225,000')">
+                            Bulanan <span class="price-tag">Rp 225,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('akses-premium-fix-merah', 'Permanen', 'Rp 450,000')">
+                            Permanen <span class="price-tag">Rp 450,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Akses Admin Cekbio -->
+                <div class="menu-item" onclick="toggleMenu('akses-admin-cekbio')">
+                    <div class="menu-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 class="menu-title">Akses Admin Cekbio via Tele</h3>
+                    <div class="menu-subitems" id="akses-admin-cekbio-subitems">
+                        <div class="subitem" onclick="openForm('akses-admin-cekbio', 'Harian', 'Rp 20,000')">
+                            Harian <span class="price-tag">Rp 20,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('akses-admin-cekbio', 'Mingguan', 'Rp 100,000')">
+                            Mingguan <span class="price-tag">Rp 100,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('akses-admin-cekbio', 'Bulanan', 'Rp 300,000')">
+                            Bulanan <span class="price-tag">Rp 300,000</span>
+                        </div>
+                        <div class="subitem" onclick="openForm('akses-admin-cekbio', 'Permanen', 'Rp 600,000')">
+                            Permanen <span class="price-tag">Rp 600,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Harga Script Gacha -->
+                <div class="menu-item" onclick="openDirectForm('harga-script-gacha', 'No Enc', 'Rp 250,000')">
+                    <div class="menu-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3 class="menu-title">Harga Script Gacha</h3>
+                    <div class="menu-subitems">
+                        <div class="subitem" onclick="openDirectForm('harga-script-gacha', 'No Enc', 'Rp 250,000')">
+                            No Enc <span class="price-tag">Rp 250,000</span>
+                        </div>
+                        <div class="subitem" onclick="openDirectForm('harga-script-gacha', 'Enc', 'Rp 300,000')">
+                            Enc <span class="price-tag">Rp 300,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Harga Script Cekbio -->
+                <div class="menu-item" onclick="openDirectForm('harga-script-cekbio', 'Enc', 'Rp 200,000')">
+                    <div class="menu-icon">
+                        <i class="fas fa-search-dollar"></i>
+                    </div>
+                    <h3 class="menu-title">Harga Script Cekbio</h3>
+                    <div class="menu-subitems">
+                        <div class="subitem" onclick="openDirectForm('harga-script-cekbio', 'Enc', 'Rp 200,000')">
+                            Enc <span class="price-tag">Rp 200,000</span>
+                        </div>
+                        <div class="subitem" onclick="openDirectForm('harga-script-cekbio', 'No Enc', 'Rp 150,000')">
+                            No Enc <span class="price-tag">Rp 150,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Harga Base -->
+                <div class="menu-item" onclick="openDirectForm('harga-base', 'Base Bug', 'Rp 50,000')">
+                    <div class="menu-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="menu-title">Harga Base</h3>
+                    <div class="menu-subitems">
+                        <div class="subitem" onclick="openDirectForm('harga-base', 'Base Bug', 'Rp 50,000')">
+                            Base Bug <span class="price-tag">Rp 50,000</span>
+                        </div>
+                        <div class="subitem" onclick="openDirectForm('harga-base', 'Base Apk Bug', 'Rp 75,000')">
+                            Base Apk Bug <span class="price-tag">Rp 75,000</span>
+                        </div>
+                        <div class="subitem" onclick="openDirectForm('harga-base', 'Base MD', 'Rp 100,000')">
+                            Base MD <span class="price-tag">Rp 100,000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Modal -->
+    <div class="modal" id="formModal">
+        <div class="form-container">
+            <h2 class="form-title" id="formTitle">Formulir Pemesanan</h2>
+            <form id="mainForm">
+                <div id="formFields"></div>
+                <div id="paymentSection" style="display: none;">
+                    <h3 style="color: var(--neon-blue); margin: 1rem 0;">Pilihan Pembayaran:</h3>
+                    <div class="payment-options">
+                        <div class="payment-option" onclick="selectPayment('dana')">
+                            <div class="payment-icon"><i class="fas fa-wallet"></i></div>
+                            <div class="payment-name">DANA</div>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment('gopay')">
+                            <div class="payment-icon"><i class="fas fa-mobile-alt"></i></div>
+                            <div class="payment-name">GOPAY</div>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment('bri')">
+                            <div class="payment-icon"><i class="fas fa-university"></i></div>
+                            <div class="payment-name">BRI</div>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment('qris')">
+                            <div class="payment-icon"><i class="fas fa-qrcode"></i></div>
+                            <div class="payment-name">QRIS</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="sendOptions" style="display: none; text-align: center; margin-top: 1rem;">
+                    <button type="button" class="btn btn-send" onclick="sendToWhatsApp()">Kirim ke WhatsApp</button>
+                    <button type="button" class="btn btn-tele" onclick="sendToTelegram()">Kirim ke Telegram</button>
+                </div>
+                <div id="directSend" style="display: none; text-align: center; margin-top: 1rem;">
+                    <button type="button" class="btn btn-tele" onclick="sendDirectToTelegram()">Kirim via Telegram</button>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="closeForm()">Tutup</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="ocean-wave"></div>
+    <div class="floating-elements" id="floatingElements"></div>
+
+    <script>
+        // Show main content after loading
+        setTimeout(() => {
+            document.getElementById('loadingScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('mainContent').classList.add('show');
+                createFloatingElements();
+            }, 500);
+        }, 3000);
+
+        function createFloatingElements() {
+            const container = document.getElementById('floatingElements');
+            for (let i = 0; i < 20; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                element.innerHTML = ['🌊', '🐠', '🐙', '🦀', '🐚', '🐬', '🐳', '🦈'][Math.floor(Math.random() * 8)];
+                element.style.left = Math.random() * 100 + '%';
+                element.style.top = Math.random() * 100 + '%';
+                element.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+                element.style.animationDelay = Math.random() * 6 + 's';
+                container.appendChild(element);
+            }
+        }
+
+        function toggleMenu(menuId) {
+            const subitems = document.getElementById(menuId + '-subitems');
+            const allSubitems = document.querySelectorAll('.menu-subitems');
+            
+            allSubitems.forEach(item => {
+                if (item !== subitems) {
+                    item.classList.remove('show');
+                }
+            });
+            
+            subitems.classList.toggle('show');
+        }
+
+        function openForm(serviceType, duration, price) {
+            const modal = document.getElementById('formModal');
+            const title = document.getElementById('formTitle');
+            const fields = document.getElementById('formFields');
+            const paymentSection = document.getElementById('paymentSection');
+            const sendOptions = document.getElementById('sendOptions');
+            const directSend = document.getElementById('directSend');
+            
+            title.textContent = `Formulir ${serviceType.replace('-', ' ').toUpperCase()} - ${duration} (${price})`;
+            
+            let formHTML = '';
+            currentService = { type: serviceType, duration: duration, price: price };
+            
+            switch(serviceType) {
+                case 'jadibot':
+                    formHTML = `
+                        <div class="form-group">
+                            <label class="form-label">Nama</label>
+                            <input type="text" class="form-input" name="nama" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nama Bot</label>
+                            <input type="text" class="form-input" name="nama_bot" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor Bot</label>
+                            <input type="text" class="form-input" name="nomor_bot" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor Owner</label>
+                            <input type="text" class="form-input" name="nomor_owner" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Foto Bot</label>
+                            <div class="file-upload">
+                                <input type="file" id="foto_bot" name="foto_bot" accept="image/*" required>
+                                <button type="button" class="file-upload-button">Pilih Foto</button>
+                            </div>
+                            <span class="file-name" id="foto_name">Belum dipilih</span>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'sewabot-reguler':
+                case 'sewabot-premium':
+                case 'sewabot-vvip':
+                    formHTML = `
+                        <div class="form-group">
+                            <label class="form-label">Nama</label>
+                            <input type="text" class="form-input" name="nama" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor Penyewa</label>
+                            <input type="text" class="form-input" name="nomor_penyewa" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Link Group</label>
+                            <input type="url" class="form-input" name="link_group" required>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'akses-prem-cekbio':
+                case 'akses-premium-fix-merah':
+                case 'akses-admin-cekbio':
+                    formHTML = `
+                        <div class="form-group">
+                            <label class="form-label">Username Telegram</label>
+                            <input type="text" class="form-input" name="username_tele" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ID Telegram</label>
+                            <input type="text" class="form-input" name="id_tele" required>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            fields.innerHTML = formHTML;
+            paymentSection.style.display = 'block';
+            sendOptions.style.display = serviceType === 'jadibot' || serviceType.includes('sewabot') ? 'block' : 'none';
+            directSend.style.display = serviceType.includes('akses') || serviceType.includes('harga') ? 'block' : 'none';
+            
+            // Add event listener for file upload
+            const fileInput = document.getElementById('foto_bot');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    document.getElementById('foto_name').textContent = e.target.files[0]?.name || 'Belum dipilih';
+                });
+            }
+            
+            modal.classList.add('show');
+        }
+
+        function openDirectForm(serviceType, item, price) {
+            const modal = document.getElementById('formModal');
+            const title = document.getElementById('formTitle');
+            const fields = document.getElementById('formFields');
+            const paymentSection = document.getElementById('paymentSection');
+            const sendOptions = document.getElementById('sendOptions');
+            const directSend = document.getElementById('directSend');
+            
+            title.textContent = `Formulir ${serviceType.replace('-', ' ').toUpperCase()} - ${item} (${price})`;
+            
+            let formHTML = `
+                <div class="form-group">
+                    <label class="form-label">Username Telegram</label>
+                    <input type="text" class="form-input" name="username_tele" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ID Telegram</label>
+                    <input type="text" class="form-input" name="id_tele" required>
+                </div>
+            `;
+            
+            fields.innerHTML = formHTML;
+            paymentSection.style.display = 'none';
+            sendOptions.style.display = 'none';
+            directSend.style.display = 'block';
+            
+            currentService = { type: serviceType, item: item, price: price };
+            modal.classList.add('show');
+        }
+
+        let currentPayment = '';
+        let currentService = {};
+
+        function selectPayment(method) {
+            const options = document.querySelectorAll('.payment-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            event.target.closest('.payment-option').classList.add('selected');
+            currentPayment = method;
+        }
+
+        function sendToWhatsApp() {
+            const formData = new FormData(document.getElementById('mainForm'));
+            let message = `Pesanan Baru:\n`;
+            message += `Service: ${currentService.type} - ${currentService.duration} - ${currentService.price}\n`;
+            message += `Pembayaran: ${currentPayment}\n\n`;
+            
+            for (let [key, value] of formData.entries()) {
+                message += `${key}: ${value}\n`;
+            }
+            
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+        }
+
+        function sendToTelegram() {
+            const formData = new FormData(document.getElementById('mainForm'));
+            let message = `Pesanan Baru:\n`;
+            message += `Service: ${currentService.type} - ${currentService.duration} - ${currentService.price}\n`;
+            message += `Pembayaran: ${currentPayment}\n\n`;
+            
+            for (let [key, value] of formData.entries()) {
+                message += `${key}: ${value}\n`;
+            }
+            
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://t.me/share/url?url=&text=${encodedMessage}`, '_blank');
+        }
+
+        function sendDirectToTelegram() {
+            const formData = new FormData(document.getElementById('mainForm'));
+            let message = `Pesanan Baru:\n`;
+            message += `Service: ${currentService.type} - ${currentService.item} - ${currentService.price}\n\n`;
+            
+            for (let [key, value] of formData.entries()) {
+                message += `${key}: ${value}\n`;
+            }
+            
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://t.me/share/url?url=&text=${encodedMessage}`, '_blank');
+        }
+
+        function closeForm() {
+            document.getElementById('formModal').classList.remove('show');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('formModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeForm();
+            }
+        });
+    </script>
+</body>
+</html>
